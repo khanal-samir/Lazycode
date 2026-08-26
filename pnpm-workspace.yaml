@@ -2,3 +2,8 @@ packages:
   - apps/*
   - packages/*
   - tooling/*
+
+# Shared dependency versions. Packages reference these with "catalog:"
+# instead of pinning their own versions (keeps one zod across the monorepo).
+catalog:
+  zod: ^4.4.3

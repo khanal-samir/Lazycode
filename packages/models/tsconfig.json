@@ -1,0 +1,7 @@
+{
+  "extends": "@lazy-code/typescript-config/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src", "tests"]
+}
