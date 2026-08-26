@@ -1,16 +1,3 @@
-import js from "@eslint/js";
-import tseslint from "typescript-eslint";
+import base from "@lazy-code/eslint-config/base";
 
-export default tseslint.config(
-  {
-    ignores: ["**/dist/**", "**/coverage/**", "**/node_modules/**", "**/.turbo/**"],
-  },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    files: ["**/*.ts"],
-    rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-    },
-  },
-);
+export default base;

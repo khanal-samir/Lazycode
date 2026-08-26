@@ -33,9 +33,13 @@ pnpm check       # full local gate: format, lint, typecheck, test, build
 ```text
 apps/        cli, server, worker, web        (created per roadmap phase)
 packages/    protocol, agent-core, models, … (created per roadmap phase)
+tooling/     shared typescript-config + eslint-config packages
 tests/       fixtures + evals                (later phases)
+docker/      compose + sandbox image         (later phases)
 docs/        PRD + architecture docs
 ```
+
+Full details: [docs/folder-structure.md](docs/folder-structure.md)
 
 ## Roadmap
 

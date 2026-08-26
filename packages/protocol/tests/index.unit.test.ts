@@ -7,7 +7,7 @@ import {
   PROTOCOL_VERSION,
   SESSION_STATUSES,
   TURN_STATUSES,
-} from "./index.js";
+} from "../src/index.js";
 
 describe("protocol contracts", () => {
   it("versions the protocol with semver", () => {

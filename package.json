@@ -8,10 +8,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "typecheck": "turbo typecheck",
-    "lint": "turbo lint",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -19,16 +19,17 @@
     "test:integration": "vitest run --project integration",
     "test:db": "vitest run --project db",
     "test:sandbox": "vitest run --project sandbox",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@lazy-code/eslint-config": "workspace:*",
     "@types/node": "^26.3.0",
     "eslint": "^10.9.1",
+    "husky": "^9.1.7",
     "prettier": "^3.9.6",
     "turbo": "^2.10.11",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.68.0",
+    "typescript": "~5.9.3",
     "vitest": "^4.1.11"
   }
 }
