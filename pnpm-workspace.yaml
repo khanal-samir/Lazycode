@@ -3,9 +3,12 @@ packages:
   - packages/*
   - tooling/*
 allowBuilds:
+  esbuild: true
   unrs-resolver: true
 
 # Shared dependency versions. Packages reference these with "catalog:"
 # instead of pinning their own versions (keeps one zod across the monorepo).
 catalog:
+  "@mastra/core": ^1.63.2
+  mastra: ^1.27.2
   zod: ^4.4.3

@@ -1,64 +1,106 @@
 # Folder Structure
 
-What lives where in this monorepo, and why.
+This is the Mastra-native repository layout. Directories are created only when they contain real code.
 
 ```text
 lazycode/
-├── apps/                      # Runnables — things you start or deploy
-│   ├── cli/                   # `agent` CLI/TUI (Ink). Creates LocalWorkspace, injects into runtime
-│   ├── server/                # Hono hosted API (thin route handlers → services/runtime)
-│   ├── worker/                # BullMQ worker. Creates DockerWorkspace, injects into runtime
-│   └── web/                   # TanStack Start dashboard
+├── apps/
+│   ├── server/                    # deployable Mastra application
+│   │   ├── src/
+│   │   │   └── mastra/
+│   │   │       ├── index.ts      # the only Mastra composition root
+│   │   │       ├── controller.ts # AgentController configuration (later)
+│   │   │       ├── storage.ts    # Mastra storage selection (later)
+│   │   │       └── routes/       # Lazycode-specific API routes only (later)
+│   │   ├── tests/
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   ├── cli/                       # Ink client; never owns agent behavior
+│   ├── web/                       # TanStack Start client
+│   └── worker/                    # remote job and sandbox lifecycle only
 │
-├── packages/                  # Shared domain libraries — one purpose each
-│   ├── protocol/              # Wire contracts: AgentEvent, error codes, statuses, PROTOCOL_VERSION
-│   ├── agent-core/            # AgentRuntime, agent loop, context manager, compaction
-│   ├── models/                # ModelRegistry + provider adapters (Vercel AI SDK)
-│   ├── tools/                 # read / write / edit / grep / glob / bash / git / subagent / skill
-│   ├── workspace/             # Workspace interface + Local / Docker / Test implementations
-│   ├── persistence/           # SQLite (local) + Postgres (hosted) behind repository interfaces
-│   └── config/                # config loading, precedence chain, Zod schemas
+├── packages/                      # shared product code, not Mastra wrappers
+│   ├── config/                    # create when multiple apps share product config
+│   ├── persistence/               # product records, not duplicated Mastra state
+│   ├── workspace/                 # custom Mastra provider only if built-ins fall short
+│   └── tools/                     # genuinely product-specific Mastra tools only
 │
-├── tooling/                   # Dev tooling shared by every package
-│   ├── typescript-config/     # Shared tsconfig bases (@lazy-code/typescript-config)
-│   └── eslint-config/         # Shared flat configs (@lazy-code/eslint-config)
-│
-├── docker/                    # docker-compose (postgres, redis), sandbox Dockerfile
-├── scripts/                   # Repo automation (release, smoke tests)
-│
+├── tooling/
+│   ├── typescript-config/
+│   └── eslint-config/
 ├── tests/
-│   ├── fixtures/              # Canonical fixture repos — never mutated in place
-│   └── evals/                 # Live-model eval tasks + runner (nightly, never in CI)
-│
-├── docs/                      # PRD + architecture docs
-└── .github/workflows/         # CI (later: separate postgres / sandbox / web-e2e jobs)
+│   ├── fixtures/
+│   └── evals/
+├── docker/
+├── scripts/
+└── docs/
 ```
 
-## Anatomy of a package
+Only `apps/server/src/mastra/index.ts` exists in the foundation. The other entries show where later, approved requirements belong; they are not instructions to scaffold empty files.
+
+## Composition root
+
+`apps/server/src/mastra/index.ts` constructs and exports one `Mastra` instance. Later phases register the coding `AgentController`, storage, observability, and product API routes there.
+
+Agents, tools, workflows, or scorers that exist only for the server stay below `apps/server/src/mastra/`. Move code into `packages/` only after a second real consumer appears.
+
+## Dependency direction
+
+```text
+CLI ──────┐
+Web ──────┼──> Mastra server/client boundary
+Worker ───┘             │
+                        ▼
+               apps/server/src/mastra
+                        │
+              approved shared packages
+```
+
+- Apps may depend on packages; packages never depend on apps.
+- CLI and web never instantiate a Mastra agent or controller.
+- Worker code provisions remote execution and calls the shared controller/server boundary; it never creates another agent implementation.
+- Product packages may import Mastra types only when implementing a real Mastra extension point.
+
+## Mastra ownership
+
+Do not create packages for concerns Mastra already owns:
+
+- agent loop and tool-call iteration
+- provider/model routing
+- stream chunk contracts
+- tools and their schema validation
+- context, memory, and compaction
+- threads, runs, and framework persistence
+- agent modes and subagents
+- skills and MCP integration
+- server routes supplied by Mastra
+- observability and scorers
+
+Lazycode owns product identity, authorization policy, repository records, encrypted credentials, remote-run orchestration, secure sandbox selection, client UX, and product-specific routes.
+
+## Workspace and security rules
+
+- Model-facing file and command operations use Mastra Workspace/Sandbox APIs.
+- `LocalSandbox` is development-only; it executes with host permissions.
+- Hosted or untrusted commands require an isolated container or remote sandbox.
+- Never expose the Docker socket, host root, unrestricted environment, or raw credentials.
+- Do not duplicate workspace access with direct Node `fs` or `child_process` calls inside model tools.
+
+## Package anatomy
+
+When a shared package becomes necessary:
 
 ```text
 packages/<name>/
-├── src/                   # source — the only thing compiled into dist/
-├── tests/                 # tests NEVER live in src/
-│   ├── *.unit.test.ts         # fast, no I/O
-│   ├── *.integration.test.ts  # real modules wired together
-│   ├── *.db.test.ts           # real DB, serial
-│   └── *.sandbox.test.ts      # real Docker, serial
-├── package.json           # @lazy-code/<name>, exports, build/typecheck/lint scripts
-├── tsconfig.json          # typecheck (src + tests)
-└── tsconfig.build.json    # build: src only → dist/
+├── src/
+├── tests/
+│   ├── *.unit.test.ts
+│   ├── *.integration.test.ts
+│   ├── *.db.test.ts
+│   └── *.sandbox.test.ts
+├── package.json
+├── tsconfig.json
+└── tsconfig.build.json
 ```
 
-## Dependency rules
-
-- Apps depend on packages. Packages never depend on apps.
-- `protocol` depends on nothing.
-- `agent-core` never imports Ink, Hono, or TanStack Start.
-- `tools` depend on the `Workspace` interface, never Node `fs`/`child_process`.
-- `persistence` is only reached through repository interfaces.
-
-## Conventions
-
-- Empty placeholder dirs use `.gitkeep`. A directory only becomes a package when it gets a real `package.json` — never scaffold empty packages ahead of their phase.
-- New shared config (e.g. a future React/Next eslint variant) goes in `tooling/`, not at root.
-- CI must never call live model APIs; evals run separately.
+Shared dependencies are pinned once in the pnpm catalog. Relative ESM imports include `.js`. TypeScript remains strict and NodeNext.

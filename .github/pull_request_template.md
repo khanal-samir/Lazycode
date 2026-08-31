@@ -14,7 +14,8 @@ Closes #<!-- issue number -->
 ## Test plan
 
 - [ ] `pnpm check` passes locally (format, lint, typecheck, test, build)
-- [ ] Tests added/updated in the package's `tests/` folder (`*.unit.test.ts` / `*.integration.test.ts` / …)
+- [ ] Tests added/updated in the owning app/package `tests/` folder (`*.unit.test.ts` / `*.integration.test.ts` / …)
+- [ ] No Mastra-owned subsystem was duplicated without a documented, tested gap
 - [ ] CI green
 
 ## Notes
