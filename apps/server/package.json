@@ -10,11 +10,13 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@mastra/code-sdk": "catalog:",
     "@mastra/core": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@lazy-code/typescript-config": "workspace:*",
+    "ai": "catalog:",
     "mastra": "catalog:"
   }
 }

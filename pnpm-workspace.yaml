@@ -3,12 +3,21 @@ packages:
   - packages/*
   - tooling/*
 allowBuilds:
+  "@google/genai": false
+  agent-browser: false
+  bufferutil: false
+  edgedriver: false
   esbuild: true
+  geckodriver: false
+  onnxruntime-node: false
+  protobufjs: false
   unrs-resolver: true
 
 # Shared dependency versions. Packages reference these with "catalog:"
 # instead of pinning their own versions (keeps one zod across the monorepo).
 catalog:
-  "@mastra/core": ^1.63.2
-  mastra: ^1.27.2
+  "@mastra/code-sdk": ^1.7.1
+  "@mastra/core": ^1.66.0
+  ai: ^6.0.280
+  mastra: ^1.29.0
   zod: ^4.4.3
