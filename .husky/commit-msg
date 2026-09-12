@@ -1,0 +1,12 @@
+# Enforce conventional commits: <type>(<scope>)?: <subject>
+# Merge commits are exempt. No dependencies, POSIX sh only.
+subject=$(head -n 1 "$1")
+case "$subject" in
+"Merge branch"* | "Merge remote"* | "Merge pull request"*) exit 0 ;;
+esac
+if ! printf '%s' "$subject" | grep -Eq '^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\([A-Za-z0-9_./-]+\))?(!)?: .+'; then
+  echo "Invalid commit message: $subject" >&2
+  echo "Use conventional commits: <type>(<scope>)?: <subject>" >&2
+  echo "Types: feat fix chore docs style refactor perf test build ci revert" >&2
+  exit 1
+fi
