@@ -11,6 +11,7 @@ export default tseslint.config(
       "**/coverage/**",
       "**/node_modules/**",
       "**/.turbo/**",
+      "**/.mastra/**",
       "app/configs/swagger/docs/**",
       "**/app/configs/swagger/docs/**",
       ".eslintrc.cjs",

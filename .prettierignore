@@ -1,4 +1,6 @@
 dist/
 coverage/
 .turbo/
+.mastra/
 pnpm-lock.yaml
+*.md
